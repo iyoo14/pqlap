@@ -4,8 +4,9 @@ import (
     "testing"
 )
 
-func TestGetInstance(t *testing.T) {
-    _, err := GetInstance()
+func TestConnectDb(t *testing.T) {
+    _, err := ConnectDb()
+    defer Close() 
     if err != nil {
         t.Error("got error")
     }

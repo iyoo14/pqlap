@@ -1,21 +1,57 @@
 package pqlap
 
 import (
-    "testing"
+	"encoding/json"
+	"fmt"
+	"log"
+	"mywork/db/pqlap"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
-func TestConnectDb(t *testing.T) {
-    _, err := ConnectDb()
-    defer Close() 
-    if err != nil {
-        t.Error("got error")
-    }
+type config struct {
+	Dsn string `json:"dsn"`
 }
 
-func TestSum(t *testing.T) {
-    actual := Sum(1,2)
-    expected := 3
-    if actual != expected {
-        t.Errorf("got %v\nwant %v", actual, expected)
-    }
+func TestConnectDb(t *testing.T) {
+	dns := getDsn()
+	con := pqlap.DbConnection(dns)
+	if con.Error() {
+		fmt.Println("con error.")
+	}
+	con.Begin()
+	if con.Error() {
+		fmt.Println("begin error.")
+	}
+	con.Prepare("insert into test_tbl (id, name) values ($1, $2), ($3, $4)")
+	if con.Error() {
+		fmt.Println("prepare error.")
+	}
+	var record []interface{}
+	record = append(record, 1)
+	record = append(record, "a")
+	record = append(record, 2)
+	record = append(record, "b")
+	con.Exec(record)
+	if con.Error() {
+		fmt.Println("exec error.")
+	}
+	con.Commit()
+	if con.Error() {
+		fmt.Println("commit error.")
+	}
+}
+
+func getDsn() string {
+	home := os.Getenv("GOPATH")
+	fname := filepath.Join(home, "config", "dbconfig.json")
+	f, err := os.Open(fname)
+	if err != nil {
+		log.Fatal("open error.")
+	}
+	defer f.Close()
+	var cfg config
+	err = json.NewDecoder(f).Decode(&cfg)
+	return cfg.Dsn
 }

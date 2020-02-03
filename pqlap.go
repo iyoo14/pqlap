@@ -1,33 +1,74 @@
 package pqlap
 
 import (
-    _"github.com/lib/pq"
-    "database/sql"
-    _"fmt"
-    "log"
-    _"os"
+	"database/sql"
+	"fmt"
+	_ "github.com/lib/pq"
+	"sync"
 )
 
-var db *sql.DB
+var db *Db
+var once sync.Once
 var err error
 
-func Sum(x int, y int) int {
-    return x + y
+type Db struct {
+	con    *sql.DB
+	txn    *sql.Tx
+	stmt   *sql.Stmt
+	err    error
+	Result sql.Result
 }
 
-func connection() (*sql.DB, error) {
-    return sql.Open("postgres", "user=iyo password=certate host=db1 dbname=godbtest sslmode=disable")
+func DbConnection(dsn string) *Db {
+	once.Do(func() {
+		fmt.Println("db connection.")
+		d, err := sql.Open("postgres", dsn)
+		db = &Db{}
+		db.err = err
+		if err == nil {
+			db.con = d
+			db.err = d.Ping()
+		}
+	})
+	return db
 }
 
-func Close() {
-    log.Printf("db close\n")
-    db.Close()
+func (d *Db) Error() bool {
+	if d.err != nil {
+		return true
+	}
+	return false
 }
 
-func ConnectDb() (*sql.DB, error) {
-    if db == nil {
-        db, err = connection()
-    }
-    err = db.Ping()
-    return db, err
+func (d *Db) Begin() {
+	txn, err := d.con.Begin()
+	d.txn = txn
+	d.err = err
+}
+
+func (d *Db) Commit() {
+	err := d.txn.Commit()
+	d.err = err
+}
+
+func (d *Db) Rollback() {
+	err := d.txn.Rollback()
+	d.err = err
+}
+
+func (d *Db) Close() {
+	err := d.con.Close()
+	d.err = err
+}
+
+func (d *Db) Prepare(sql string) {
+	stmt, err := d.txn.Prepare(sql)
+	d.stmt = stmt
+	d.err = err
+}
+
+func (d *Db) Exec(val []interface{}) {
+	result, err := d.stmt.Exec(val...)
+	d.Result = result
+	d.err = err
 }

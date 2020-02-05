@@ -2,7 +2,6 @@ package pqlap
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/lib/pq"
 	"sync"
 )
@@ -21,7 +20,6 @@ type Db struct {
 
 func DbConnection(dsn string) *Db {
 	once.Do(func() {
-		fmt.Println("db connection.")
 		d, err := sql.Open("postgres", dsn)
 		db = &Db{}
 		db.err = err

@@ -40,6 +40,10 @@ func (d *Db) Error() bool {
 	return false
 }
 
+func (d *Db) GetError() error {
+	return d.err
+}
+
 func (d *Db) Begin() {
 	txn, err := d.con.Begin()
 	d.txn = txn

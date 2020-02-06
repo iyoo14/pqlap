@@ -74,3 +74,15 @@ func (d *Db) Exec(val []interface{}) {
 	d.Result = result
 	d.err = err
 }
+
+func (d *Db) Query(val []interface{}) *sql.Rows {
+	rows, err := d.stmt.Query(val...)
+	d.err = err
+	return rows
+}
+
+func (d *Db) SimpleQuery(sql string) *sql.Rows {
+	rows, err := d.con.Query(sql)
+	d.err = err
+	return rows
+}

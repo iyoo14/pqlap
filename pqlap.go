@@ -75,6 +75,12 @@ func (d *Db) Exec(val []interface{}) {
 	d.err = err
 }
 
+func (d *Db) SimpleExec(sql string) {
+	result, err := d.con.Exec(sql)
+	d.Result = result
+	d.err = err
+}
+
 func (d *Db) Query(val []interface{}) *sql.Rows {
 	rows, err := d.stmt.Query(val...)
 	d.err = err

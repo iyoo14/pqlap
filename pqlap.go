@@ -64,7 +64,7 @@ func (d *Db) Close() {
 }
 
 func (d *Db) Prepare(sql string) {
-	stmt, err := d.txn.Prepare(sql)
+	stmt, err := d.con.Prepare(sql)
 	d.stmt = stmt
 	d.err = err
 }

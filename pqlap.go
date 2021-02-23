@@ -80,6 +80,12 @@ func (d *Db) Prepare(sql string) {
 	d.err = err
 }
 
+func (d *Db) PrepareTxn(sql string) {
+	stmt, err := d.txn.Prepare(sql)
+	d.stmt = stmt
+	d.err = err
+}
+
 func (d *Db) Exec(val []interface{}) {
 	result, err := d.stmt.Exec(val...)
 	d.Result = result

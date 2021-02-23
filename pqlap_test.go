@@ -16,6 +16,7 @@ type config struct {
 
 func TestConnectDb(t *testing.T) {
 	dns := getDsn()
+	log.Println(dns)
 	con := pqlap.DbConnection(dns)
 	if con.Error() {
 		fmt.Println("con error.")
@@ -43,9 +44,20 @@ func TestConnectDb(t *testing.T) {
 	}
 }
 
+func TestDbInstantConnection(t *testing.T) {
+	dns := getDsn()
+	log.Println(dns)
+	con := pqlap.DbConnection(dns)
+	if con.Error() {
+		fmt.Println("con error.")
+	}
+
+}
+
 func getDsn() string {
 	home := os.Getenv("GOPATH")
-	fname := filepath.Join(home, "config", "dbconfig.json")
+	fname := filepath.Join(home, "config", "env.json")
+	log.Println(fname)
 	f, err := os.Open(fname)
 	if err != nil {
 		log.Fatal("open error.")

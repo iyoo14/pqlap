@@ -31,6 +31,17 @@ func DbConnection(dsn string) *Db {
 	return db
 }
 
+func DbInstantConnection(dsn string) *Db {
+	d, err := sql.Open("postgres", dsn)
+	db = &Db{}
+	db.err = err
+	if err == nil {
+		db.con = d
+		db.err = d.Ping()
+	}
+	return db
+}
+
 func (d *Db) Error() bool {
 	if d.err != nil {
 		return true

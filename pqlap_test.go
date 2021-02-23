@@ -51,7 +51,6 @@ func TestDbInstantConnection(t *testing.T) {
 	if con.Error() {
 		fmt.Println("con error.")
 	}
-
 }
 
 func getDsn() string {

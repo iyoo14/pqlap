@@ -7,7 +7,7 @@ import (
 )
 
 var db *Db
-var dbi Db
+var dbi *Db
 var once sync.Once
 var err error
 
@@ -32,9 +32,9 @@ func DbConnection(dsn string) *Db {
 	return db
 }
 
-func DbInstantConnection(dsn string) Db {
+func DbInstantConnection(dsn string) *Db {
 	d, err := sql.Open("postgres", dsn)
-	dbi = Db{}
+	dbi = &Db{}
 	dbi.err = err
 	if err == nil {
 		db.con = d

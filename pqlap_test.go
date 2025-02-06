@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"mywork/db/pqlap"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,7 +16,7 @@ type config struct {
 func TestConnectDb(t *testing.T) {
 	dns := getDsn()
 	log.Println(dns)
-	con := pqlap.DbConnection(dns)
+	con := DbConnection(dns)
 	if con.Error() {
 		fmt.Println("con error.")
 	}
@@ -25,20 +24,37 @@ func TestConnectDb(t *testing.T) {
 	if con.Error() {
 		fmt.Println("begin error.")
 	}
-	con.Prepare("insert into test_tbl (id, name) values ($1, $2), ($3, $4)")
+	con.PrepareTxn("insert into users (id, name, age) values ($1, $2, $3)")
 	if con.Error() {
-		fmt.Println("prepare error.")
+		fmt.Println("prepare error1.")
 	}
 	var record []interface{}
-	record = append(record, 1)
-	record = append(record, "a")
-	record = append(record, 2)
-	record = append(record, "b")
+	id := 1
+	record = append(record, id)
+	record = append(record, "aaaxxzzxxx")
+	record = append(record, 6)
 	con.Exec(record)
 	if con.Error() {
-		fmt.Println("exec error.")
+		fmt.Println("exec error2.")
+	}
+
+	st := 13
+	con.PrepareTxn("update cc  set state = $1 where stock_code = $2")
+	if con.Error() {
+		fmt.Println("prepare error3.")
+		fmt.Println(con.GetError())
+	}
+	var record2 []interface{}
+	record = append(record2, st)
+	record = append(record2, "0000")
+	con.Exec(record2)
+	if con.Error() {
+		fmt.Println("exec error4.")
+		fmt.Println(con.GetError())
+		con.Rollback()
 	}
 	con.Commit()
+
 	if con.Error() {
 		fmt.Println("commit error.")
 	}
@@ -47,7 +63,7 @@ func TestConnectDb(t *testing.T) {
 func TestDbInstantConnection(t *testing.T) {
 	dns := getDsn()
 	log.Println(dns)
-	con := pqlap.DbConnection(dns)
+	con := DbConnection(dns)
 	if con.Error() {
 		fmt.Println("con error.")
 	}
